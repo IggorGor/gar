@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\ImportGar;
 use App\Models\Version;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
@@ -113,6 +114,48 @@ class GarService
             if (preg_match($regFileName, basename($fileName))) return true;
         }
         return false;
+    }
+
+    public static function setImportJobs(): void
+    {
+        // HouseParam
+        self::setJob('AS_HOUSES_PARAMS', 'PARAM', Gar\HouseParam::class);
+
+        // AdmHierarchy
+        self::setJob('AS_ADM_HIERARCHY', 'ITEM', Gar\AdmHierarchy::class);
+
+        // House
+        self::setJob('AS_HOUSES', 'HOUSE', Gar\House::class);
+
+        // AddrObj
+        self::setJob('AS_ADDR_OBJ', 'OBJECT', Gar\AddrObj::class);
+
+        // ParamType
+        self::setJob('AS_PARAM_TYPES', 'PARAMTYPE', Gar\ParamType::class);
+
+        //ObjectLevels
+        self::setJob('AS_OBJECT_LEVELS', 'OBJECTLEVEL', Gar\ObjectLevel::class);
+
+        // HouseTypes
+        self::setJob('AS_HOUSE_TYPES', 'HOUSETYPE', Gar\HouseType::class);
+
+        // HouseAddTypes
+        self::setJob('AS_ADDHOUSE_TYPES', 'HOUSETYPE', Gar\HouseAddType::class);
+    }
+
+    private static function setJob(string $keyFileName, string $nodeName, string $serviceName): void
+    {
+        $fileName = self::getFileName(self::$regFileNames[$keyFileName]);
+        if (Storage::fileExists($fileName)) ImportGar::dispatch($fileName, $nodeName, $serviceName);
+    }
+
+    private static function getFileName(string $filePattern): string
+    {
+        $files = Storage::files(config('gar.unzip_full_path'), true);
+        foreach ($files as $file) {
+            if (preg_match($filePattern, basename($file))) return $file;
+        }
+        return '';
     }
 
 }
