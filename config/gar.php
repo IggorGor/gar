@@ -14,7 +14,7 @@ return [
     'unzip_full_path' => 'gar/unzip/full',
 
     // Путь к каталогу, содержащему утилиту wget
-    'wget_path' => 'D:/OSPanel/modules/wget/bin/',
+    'wget_path' => '',
 
     // Уровень логирования: 0 — не логировать, 1 — краткие логи, 2 — подробные логи
     'log_level' => 1, // 0, 1, 2
