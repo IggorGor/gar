@@ -14,15 +14,22 @@ abstract class CommonGar
     public function __construct()
     {
         DB::table($this->getTableName())->truncate();
-        if (config('gar.log_level') > 0) Log::info('Таблица ' . $this->getTableName() . ' очищена');
+        if (config('gar.log_level') > 0) {
+            Log::info('Таблица ' . $this->getTableName() . ' очищена');
+        }
         $this->maxLineToSave = floor(65535 / count($this->getKeysArray()));
         $this->alreadySave = 0;
+        $this->insertArray = [];
     }
 
     public function __destruct()
     {
-        if (isset($this->insertArray) and count($this->insertArray) > 0) $this->saveToTable();
-        if (config('gar.log_level') > 0) Log::info('Всего записано в таблицу ' . $this->getTableName() . ' ' . $this->alreadySave);
+        if (isset($this->insertArray) and count($this->insertArray) > 0) {
+            $this->saveToTable();
+        }
+        if (config('gar.log_level') > 0) {
+            Log::info('Всего записано в таблицу ' . $this->getTableName() . ' ' . $this->alreadySave);
+        }
     }
 
     abstract protected function getTableName(): string;
@@ -36,7 +43,7 @@ abstract class CommonGar
         $keysArray = $this->getKeysArray();
         $output = [];
         foreach ($keysArray as $key => $newKey) {
-            if (key_exists($key, $inputValues)) {
+            if (array_key_exists($key, $inputValues)) {
                 $newValue = match ($inputValues[$key]) {
                     'true' => true,
                     'false' => false,
@@ -57,7 +64,9 @@ abstract class CommonGar
     {
         DB::table($this->getTableName())->insert($this->insertArray);
         $this->alreadySave += count($this->insertArray);
-        if (config('gar.log_level') > 1) Log::info('Записано в таблицу ' . $this->getTableName() . ' ' . count($this->insertArray) . ' записей, всего: ' . $this->alreadySave);
+        if (config('gar.log_level') > 1) {
+            Log::info('Записано в таблицу ' . $this->getTableName() . ' ' . count($this->insertArray) . ' записей, всего: ' . $this->alreadySave);
+        }
     }
 
     private function processSave(): void
@@ -68,8 +77,12 @@ abstract class CommonGar
 
     public function addLine(array $inputArray): void
     {
-        if ($this->canProcessed($inputArray)) $this->insertArray[] = $this->mapInputValues($inputArray);
-        if (count($this->insertArray) >= $this->maxLineToSave) $this->processSave();
+        if ($this->canProcessed($inputArray)) {
+            $this->insertArray[] = $this->mapInputValues($inputArray);
+        }
+        if (count($this->insertArray) >= $this->maxLineToSave) {
+            $this->processSave();
+        }
     }
 
 }
